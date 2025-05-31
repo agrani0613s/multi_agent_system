@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Document Processing System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-section, .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .tab-button:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        #process-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        #process-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        #process-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .file-upload-area:hover, .file-upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(118, 75, 162, 0.1);
+        }
+
+        .file-upload-area i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-area p {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .file-item i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .sample-buttons {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .sample-buttons h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .sample-btn {
+            margin: 5px 10px 5px 0;
+            padding: 10px 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .sample-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .loading p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .results-container, .error-container {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .error-container {
+            background: rgba(244, 67, 54, 0.1);
+            border: 2px solid #f44336;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .error-container h2 {
+            color: #f44336;
+            margin-bottom: 10px;
+        }
+
+        .agents-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .agents-info h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .agent-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .agent-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .email-agent {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+        }
+
+        .invoice-agent {
+            background: linear-gradient(45deg, #FF9800, #f57c00);
+        }
+
+        .webhook-agent {
+            background: linear-gradient(45deg, #2196F3, #1976d2);
+        }
+
+        .agent-card h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .agent-card p {
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .agent-card ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .agent-card li {
+            padding: 5px 0;
+            color: #555;
+        }
+
+        .agent-card li:before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .result-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            color: #333;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-robot"></i> Multi-Agent Processing System</h1>
+            <p>Intelligent document processing using specialized AI agents</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="showTab('text')">
+                        <i class="fas fa-keyboard"></i> Text Input
+                    </button>
+                    <button class="tab-button" onclick="showTab('file')">
+                        <i class="fas fa-upload"></i> File Upload
+                    </button>
+                </div>
+
+                <div id="text-tab" class="tab-content active">
+                    <div class="form-group">
+                        <label for="document-type">Document Type:</label>
+                        <select id="document-type">
+                            <option value="auto">Auto-detect</option>
+                            <option value="email">Email</option>
+                            <option value="invoice">Invoice</option>
+                            <option value="webhook">Webhook</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content">Document Content:</label>
+                        <textarea id="content" placeholder="Paste your document content here..."></textarea>
+                    </div>
+                    
+                    <button id="process-btn" onclick="processDocument()">
+                        <i class="fas fa-cogs"></i> Process Document
+                    </button>
+                </div>
+
+                <div id="file-tab" class="tab-content">
+                    <div class="file-upload-area" id="file-upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drop files here or click to browse</p>
+                        <input type="file" id="file-input" accept=".txt,.pdf,.json" multiple>
+                    </div>
+                    <div id="file-list"></div>
+                </div>
+
+                <div class="sample-buttons">
+                    <h3>Try Sample Documents:</h3>
+                    <button onclick="loadSample('email')" class="sample-btn">
+                        <i class="fas fa-envelope"></i> Sample Email
+                    </button>
+                    <button onclick="loadSample('webhook')" class="sample-btn">
+                        <i class="fas fa-webhook"></i> Sample Webhook
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div class="loading" id="loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Processing document...</p>
+                </div>
+
+                <div id="results" class="results-container" style="display: none;">
+                    <h2><i class="fas fa-chart-line"></i> Processing Results</h2>
+                    <div id="results-content"></div>
+                </div>
+
+                <div id="error" class="error-container" style="display: none;">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Error</h2>
+                    <div id="error-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="agents-info">
+            <h2><i class="fas fa-users"></i> Available Agents</h2>
+            <div class="agents-grid" id="agents-grid">
+                <div class="agent-card">
+                    <div class="agent-icon email-agent">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <h3>Email Agent</h3>
+                    <p>Processes emails, extracts sentiment, and identifies entities</p>
+                    <ul>
+                        <li>Email parsing</li>
+                        <li>Sentiment analysis</li>
+                        <li>Entity extraction</li>
+                    </ul>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon invoice-agent">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3>Invoice Agent</h3>
+                    <p>Extracts financial data and validates invoice information</p>
+                    <ul>
+                        <li>Invoice parsing</li>
+                        <li>Amount extraction</li>
+                        <li>Vendor identification</li>
+                    </ul>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon webhook-agent">
+                        <i class="fas fa-webhook"></i>
+                    </div>
+                    <h3>Webhook Agent</h3>
+                    <p>Validates webhook payloads and classifies events</p>
+                    <ul>
+                        <li>Webhook validation</li>
+                        <li>Payload parsing</li>
+                        <li>Event classification</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const samples = {
+            email: `From: john.doe@company.com
+To: jane.smith@client.com
+Subject: Invoice Payment Confirmation - Invoice #INV-2024-001
+
+Dear Jane,
+
+I hope this email finds you well. I am writing to confirm that we have received your payment for Invoice #INV-2024-001 in the amount of $2,500.00.
+
+Payment Details:
+- Invoice Number: INV-2024-001
+- Amount Paid: $2,500.00
+- Payment Date: January 15, 2024
+- Payment Method: Bank Transfer
+
+Thank you for your prompt payment. We appreciate your business and look forward to continuing our partnership.
+
+Best regards,
+John Doe
+Accounts Receivable Manager`,
+            
+            webhook: `{
+  "id": "evt_1234567890abcdef",
+  "type": "payment.succeeded",
+  "source": "stripe",
+  "timestamp": "2024-01-15T14:30:45Z",
+  "data": {
+    "object": "payment_intent",
+    "amount": 250000,
+    "currency": "usd",
+    "status": "succeeded",
+    "customer": {
+      "email": "customer@example.com",
+      "name": "John Smith"
+    }
+  }
+}`
+        };
+
+        // Agent processing functions
+        const agents = {
+            email: function(content) {
+                const emailRegex = /From:\s*(.+)\nTo:\s*(.+)\nSubject:\s*(.+)/;
+                const match = content.match(emailRegex);
+                
+                const amountRegex = /\$[\d,]+\.?\d*/g;
+                const amounts = content.match(amountRegex) || [];
+                
+                const invoiceRegex = /(INV-\d{4}-\d{3})/g;
+                const invoices = content.match(invoiceRegex) || [];
+                
+                const sentiment = content.toLowerCase().includes('thank you') || 
+                               content.toLowerCase().includes('appreciate') ? 'Positive' : 'Neutral';
+                
+                return {
+                    type: 'Email Analysis',
+                    data: {
+                        from: match ? match[1].trim() : 'Not found',
+                        to: match ? match[2].trim() : 'Not found',
+                        subject: match ? match[3].trim() : 'Not found',
+                        sentiment: sentiment,
+                        amounts_found: amounts,
+                        invoice_references: invoices,
+                        word_count: content.split(/\s+/).length
+                    }
+                };
+            },
+
+            invoice: function(content) {
+                const amountRegex = /\$?([\d,]+\.?\d*)/g;
+                const amounts = [];
+                let match;
+                while ((match = amountRegex.exec(content)) !== null) {
+                    amounts.push(parseFloat(match[1].replace(/,/g, '')));
+                }
+                
+                const invoiceRegex = /(INV-\d{4}-\d{3})/g;
+                const invoiceNumbers = content.match(invoiceRegex) || [];
+                
+                const dateRegex = /(\w+ \d{1,2}, \d{4})/g;
+                const dates = content.match(dateRegex) || [];
+                
+                return {
+                    type: 'Invoice Analysis',
+                    data: {
+                        invoice_numbers: invoiceNumbers,
+                        amounts: amounts,
+                        total_amount: amounts.length > 0 ? Math.max(...amounts) : 0,
+                        dates_found: dates,
+                        currency: content.includes('$') ? 'USD' : 'Unknown'
+                    }
+                };
+            },
+
+            webhook: function(content) {
+                try {
+                    const data = JSON.parse(content);
+                    
+                    return {
+                        type: 'Webhook Analysis',
+                        data: {
+                            event_id: data.id || 'Not found',
+                            event_type: data.type || 'Unknown',
+                            source: data.source || 'Unknown',
+                            timestamp: data.timestamp || 'Not found',
+                            status: data.data?.status || 'Unknown',
+                            amount: data.data?.amount ? (data.data.amount / 100) : 0,
+                            currency: data.data?.currency?.toUpperCase() || 'Unknown',
+                            customer_email: data.data?.customer?.email || 'Not found',
+                            is_valid: true
+                        }
+                    };
+                } catch (e) {
+                    return {
+                        type: 'Webhook Analysis',
+                        data: {
+                            is_valid: false,
+                            error: 'Invalid JSON format',
+                            content_preview: content.substring(0, 100) + '...'
+                        }
+                    };
+                }
+            }
+        };
+
+        // Auto-detect document type
+        function detectDocumentType(content) {
+            if (content.includes('From:') && content.includes('To:') && content.includes('Subject:')) {
+                return 'email';
+            }
+            
+            try {
+                JSON.parse(content);
+                return 'webhook';
+            } catch (e) {
+                // Not JSON
+            }
+            
+            if (content.includes('Invoice') || content.includes('INV-')) {
+                return 'invoice';
+            }
+            
+            return 'email'; // default
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`[onclick="showTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // Load sample data
+        function loadSample(type) {
+            document.getElementById('content').value = samples[type];
+            document.getElementById('document-type').value = type;
+            showTab('text');
+        }
+
+        // File upload handling
+        const fileUploadArea = document.getElementById('file-upload-area');
+        const fileInput = document.getElementById('file-input');
+        const fileList = document.getElementById('file-list');
+
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            fileList.innerHTML = '';
+            Array.from(files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <i class="fas fa-file-alt"></i>
+                    <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button onclick="processFile('${file.name}')" style="margin-left: auto; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Process</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        function processFile(fileName) {
+            showResults({
+                type: 'File Processing',
+                data: {
+                    filename: fileName,
+                    status: 'File processing not implemented in demo',
+                    note: 'In a real implementation, this would read and process the uploaded file'
+                }
+            });
+        }
+
+        // Process document
+        function processDocument() {
+            const content = document.getElementById('content').value.trim();
+            const selectedType = document.getElementById('document-type').value;
+            
+            if (!content) {
+                showError('Please enter document content or upload a file.');
+                return;
+            }
+
+            showLoading();
+
+            // Simulate processing delay
+            setTimeout(() => {
+                try {
+                    const documentType = selectedType === 'auto' ? detectDocumentType(content) : selectedType;
+                    const agent = agents[documentType];
+                    
+                    if (!agent) {
+                        throw new Error(`No agent available for document type: ${documentType}`);
+                    }
+
+                    const result = agent(content);
+                    showResults(result);
+                } catch (error) {
+                    showError(`Processing error: ${error.message}`);
+                }
+            }, 1500);
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('process-btn').disabled = true;
+        }
+
+        function showResults(result) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('process-btn').disabled = false;
+
+            const resultsContent = document.getElementById('results-content');
+            resultsContent.innerHTML = `
+                <div class="result-section">
+                    <h3>${result.type}</h3>
+                    ${Object.entries(result.data).map(([key, value]) => `
+                        <div class="result-item">
+                            <div class="result-label">${key.replace(/_/g, ' ').toUpperCase()}:</div>
+                            <div class="result-value">${Array.isArray(value) ? value.join(', ') || 'None found' : value}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('process-btn').disabled = false;
+
+            document.getElementById('error-content').innerHTML = `<p>${message}</p>`;
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Multi-Agent Document Processing System initialized');
+        });
+    </script>
+</body>
+</html>

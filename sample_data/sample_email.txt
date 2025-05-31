@@ -1,0 +1,27 @@
+From: john.doe@company.com
+To: jane.smith@client.com
+Subject: Invoice Payment Confirmation - Invoice #INV-2024-001
+
+Dear Jane,
+
+I hope this email finds you well. I am writing to confirm that we have received your payment for Invoice #INV-2024-001 in the amount of $2,500.00.
+
+Payment Details:
+- Invoice Number: INV-2024-001
+- Amount Paid: $2,500.00
+- Payment Date: January 15, 2024
+- Payment Method: Bank Transfer
+- Reference Number: PAY-789456123
+
+The payment has been successfully processed and applied to your account. Your current account balance is now $0.00.
+
+Thank you for your prompt payment. We appreciate your business and look forward to continuing our partnership.
+
+If you have any questions or need a receipt for your records, please don't hesitate to contact me at john.doe@company.com or call me at 555-123-4567.
+
+Best regards,
+John Doe
+Accounts Receivable Manager
+ABC Company Ltd.
+Phone: 555-123-4567
+Email: john.doe@company.com

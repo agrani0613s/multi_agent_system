@@ -1,0 +1,42 @@
+{
+    "id": "evt_1234567890abcdef",
+    "type": "payment.succeeded",
+    "source": "stripe",
+    "version": "2024-01-15",
+    "timestamp": "2024-01-15T14:30:45Z",
+    "data": {
+      "object": "payment_intent",
+      "id": "pi_1234567890abcdef",
+      "amount": 250000,
+      "currency": "usd",
+      "status": "succeeded",
+      "customer": {
+        "id": "cus_1234567890abcdef",
+        "email": "customer@example.com",
+        "name": "John Smith"
+      },
+      "payment_method": {
+        "id": "pm_1234567890abcdef",
+        "type": "card",
+        "card": {
+          "brand": "visa",
+          "last4": "4242",
+          "exp_month": 12,
+          "exp_year": 2025
+        }
+      },
+      "metadata": {
+        "order_id": "ORD-2024-001",
+        "customer_id": "12345",
+        "invoice_id": "INV-2024-001"
+      },
+      "created": 1705329045,
+      "description": "Payment for Order #ORD-2024-001"
+    },
+    "livemode": false,
+    "pending_webhooks": 1,
+    "request": {
+      "id": "req_1234567890abcdef",
+      "idempotency_key": null
+    }
+  }
