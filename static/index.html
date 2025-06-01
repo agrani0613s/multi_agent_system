@@ -180,7 +180,7 @@
             color: #666;
         }
 
-        #file-input {
+        #file-input, #pdf-input {
             display: none;
         }
 
@@ -196,6 +196,21 @@
         .file-item i {
             margin-right: 10px;
             color: #667eea;
+        }
+
+        .file-item button {
+            margin-left: auto;
+            padding: 5px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .file-item button:hover {
+            background: #5a6fd8;
         }
 
         .sample-buttons {
@@ -315,6 +330,10 @@
             background: linear-gradient(45deg, #2196F3, #1976d2);
         }
 
+        .pdf-agent {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+        }
+
         .agent-card h3 {
             margin-bottom: 10px;
             color: #333;
@@ -372,6 +391,19 @@
             color: #333;
         }
 
+        .pdf-preview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            background: white;
+        }
+
+        .pdf-preview canvas {
+            max-width: 100%;
+            border-radius: 4px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -408,6 +440,9 @@
                     <button class="tab-button" onclick="showTab('file')">
                         <i class="fas fa-upload"></i> File Upload
                     </button>
+                    <button class="tab-button" onclick="showTab('pdf')">
+                        <i class="fas fa-file-pdf"></i> PDF Upload
+                    </button>
                 </div>
 
                 <div id="text-tab" class="tab-content active">
@@ -418,6 +453,7 @@
                             <option value="email">Email</option>
                             <option value="invoice">Invoice</option>
                             <option value="webhook">Webhook</option>
+                            <option value="pdf">PDF Content</option>
                         </select>
                     </div>
                     
@@ -440,6 +476,24 @@
                     <div id="file-list"></div>
                 </div>
 
+                <!-- PDF upload tab specifically for PDF processing -->
+                <div id="pdf-tab" class="tab-content">
+                    <div class="file-upload-area" id="pdf-upload-area">
+                        <i class="fas fa-file-pdf"></i>
+                        <p>Drop PDF files here or click to browse</p>
+                        <input type="file" id="pdf-input" accept=".pdf" multiple>
+                    </div>
+                    <div id="pdf-list"></div>
+                    
+                    <!-- Sample PDF processing button -->
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e5e9;">
+                        <h3>Sample PDF Processing:</h3>
+                        <button onclick="processSamplePDF()" class="sample-btn">
+                            <i class="fas fa-file-pdf"></i> Process Sample PDF
+                        </button>
+                    </div>
+                </div>
+
                 <div class="sample-buttons">
                     <h3>Try Sample Documents:</h3>
                     <button onclick="loadSample('email')" class="sample-btn">
@@ -447,6 +501,9 @@
                     </button>
                     <button onclick="loadSample('webhook')" class="sample-btn">
                         <i class="fas fa-webhook"></i> Sample Webhook
+                    </button>
+                    <button onclick="loadSample('invoice')" class="sample-btn">
+                        <i class="fas fa-file-invoice"></i> Sample Invoice
                     </button>
                 </div>
             </div>
@@ -482,6 +539,7 @@
                         <li>Email parsing</li>
                         <li>Sentiment analysis</li>
                         <li>Entity extraction</li>
+                        <li>Contact identification</li>
                     </ul>
                 </div>
 
@@ -495,6 +553,7 @@
                         <li>Invoice parsing</li>
                         <li>Amount extraction</li>
                         <li>Vendor identification</li>
+                        <li>Date validation</li>
                     </ul>
                 </div>
 
@@ -508,8 +567,24 @@
                         <li>Webhook validation</li>
                         <li>Payload parsing</li>
                         <li>Event classification</li>
+                        <li>Data extraction</li>
                     </ul>
                 </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon pdf-agent">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3>PDF Agent</h3>
+                    <p>Extracts text and metadata from PDF documents</p>
+                    <ul>
+                        <li>Text extraction</li>
+                        <li>Metadata analysis</li>
+                        <li>Page count</li>
+                        <li>Content analysis</li>
+                    </ul>
+                </div>
+
             </div>
         </div>
     </div>
@@ -552,8 +627,36 @@ Accounts Receivable Manager`,
       "name": "John Smith"
     }
   }
-}`
+}`,        // Sample invoice text for testing invoice agent
+            invoice: `INVOICE
+
+Invoice Number: INV-2024-0157
+Date: March 15, 2024
+Due Date: April 15, 2024
+
+Bill To:
+ABC Corporation
+123 Business Street
+New York, NY 10001
+
+From:
+XYZ Services Ltd.
+456 Service Avenue
+Chicago, IL 60601
+
+Description                  Qty    Rate      Amount
+Web Development Services     40     $75.00    $3,000.00
+SEO Optimization            20     $50.00    $1,000.00
+Monthly Maintenance         1      $500.00   $500.00
+
+                            Subtotal: $4,500.00
+                            Tax (8%): $360.00
+                            Total: $4,860.00
+
+Payment Terms: Net 30 days
+Thank you for your business!`
         };
+
 
         // Agent processing functions
         const agents = {
@@ -569,6 +672,9 @@ Accounts Receivable Manager`,
                 
                 const sentiment = content.toLowerCase().includes('thank you') || 
                                content.toLowerCase().includes('appreciate') ? 'Positive' : 'Neutral';
+
+                const emailAddressRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
+                const emailAddresses = content.match(emailAddressRegex) || [];
                 
                 return {
                     type: 'Email Analysis',
@@ -579,6 +685,7 @@ Accounts Receivable Manager`,
                         sentiment: sentiment,
                         amounts_found: amounts,
                         invoice_references: invoices,
+                        email_addresses: emailAddresses,
                         word_count: content.split(/\s+/).length
                     }
                 };
@@ -589,7 +696,8 @@ Accounts Receivable Manager`,
                 const amounts = [];
                 let match;
                 while ((match = amountRegex.exec(content)) !== null) {
-                    amounts.push(parseFloat(match[1].replace(/,/g, '')));
+                    const amount = parseFloat(match[1].replace(/,/g, ''));
+                    if (amount > 0) amounts.push(amount);
                 }
                 
                 const invoiceRegex = /(INV-\d{4}-\d{3})/g;
@@ -597,6 +705,13 @@ Accounts Receivable Manager`,
                 
                 const dateRegex = /(\w+ \d{1,2}, \d{4})/g;
                 const dates = content.match(dateRegex) || [];
+
+                // Look for company names (typically in all caps or after specific keywords)
+                const companyRegex = /(?:Bill To:|From:)\s*\n([A-Z][^\n]+)/g;
+                const companies = [];
+                while ((match = companyRegex.exec(content)) !== null) {
+                    companies.push(match[1].trim());
+                }
                 
                 return {
                     type: 'Invoice Analysis',
@@ -605,7 +720,10 @@ Accounts Receivable Manager`,
                         amounts: amounts,
                         total_amount: amounts.length > 0 ? Math.max(...amounts) : 0,
                         dates_found: dates,
-                        currency: content.includes('$') ? 'USD' : 'Unknown'
+                        currency: content.includes('$') ? 'USD' : 'Unknown',
+                        line_items: content.split('\n').filter(line => 
+                            line.includes('$') && !line.includes('Total') && !line.includes('Subtotal')
+                        ).length
                     }
                 };
             },
@@ -613,6 +731,10 @@ Accounts Receivable Manager`,
             webhook: function(content) {
                 try {
                     const data = JSON.parse(content);
+
+                    // Extract nested data safely
+                    const customerInfo = data.data?.customer || {};
+                    const metadata = data.data?.metadata || {};
                     
                     return {
                         type: 'Webhook Analysis',
@@ -625,6 +747,9 @@ Accounts Receivable Manager`,
                             amount: data.data?.amount ? (data.data.amount / 100) : 0,
                             currency: data.data?.currency?.toUpperCase() || 'Unknown',
                             customer_email: data.data?.customer?.email || 'Not found',
+                            customer_name: customerInfo.name || 'Not found',
+                            metadata_keys: Object.keys(metadata),
+                            payload_size: JSON.stringify(data).length,
                             is_valid: true
                         }
                     };
@@ -634,10 +759,47 @@ Accounts Receivable Manager`,
                         data: {
                             is_valid: false,
                             error: 'Invalid JSON format',
-                            content_preview: content.substring(0, 100) + '...'
+                            content_preview: content.substring(0, 100) + '...',
+                            content_length: content.length
                         }
                     };
                 }
+            },
+
+            // PDF processing agent - extracts text and metadata from PDF content
+            pdf: function(content, metadata = {}) {
+                // If content is extracted text from PDF
+                const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+                const lineCount = content.split('\n').length;
+                
+                // Extract potential monetary amounts
+                const amountRegex = /\$[\d,]+\.?\d*/g;
+                const amounts = content.match(amountRegex) || [];
+                
+                // Extract dates
+                const dateRegex = /\d{1,2}\/\d{1,2}\/\d{4}|\w+ \d{1,2}, \d{4}/g;
+                const dates = content.match(dateRegex) || [];
+                
+                // Extract email addresses
+                const emailRegex = /[\w\.-]+@[\w\.-]+\.\w+/g;
+                const emails = content.match(emailRegex) || [];
+                
+                return {
+                    type: 'PDF Analysis',
+                    data: {
+                        word_count: wordCount,
+                        line_count: lineCount,
+                        character_count: content.length,
+                        page_count: metadata.pageCount || 'Unknown',
+                        amounts_found: amounts,
+                        dates_found: dates,
+                        emails_found: emails,
+                        has_text: wordCount > 0,
+                        content_preview: content.substring(0, 200) + (content.length > 200 ? '...' : ''),
+                        creation_date: metadata.creationDate || 'Unknown',
+                        pdf_version: metadata.pdfVersion || 'Unknown'
+                    }
+                };
             }
         };
 
@@ -654,7 +816,8 @@ Accounts Receivable Manager`,
                 // Not JSON
             }
             
-            if (content.includes('Invoice') || content.includes('INV-')) {
+            if (content.includes('Invoice') || content.includes('INV-') || 
+                (content.includes('Amount') && content.includes('$'))) {
                 return 'invoice';
             }
             
