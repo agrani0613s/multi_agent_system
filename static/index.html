@@ -437,12 +437,12 @@
                     <button class="tab-button active" onclick="showTab('text')">
                         <i class="fas fa-keyboard"></i> Text Input
                     </button>
-                    <button class="tab-button" onclick="showTab('file')">
+                    <!-- <button class="tab-button" onclick="showTab('file')">
                         <i class="fas fa-upload"></i> File Upload
-                    </button>
-                    <button class="tab-button" onclick="showTab('pdf')">
+                    </button> -->
+                    <!-- <button class="tab-button" onclick="showTab('pdf')">
                         <i class="fas fa-file-pdf"></i> PDF Upload
-                    </button>
+                    </button> -->
                 </div>
 
                 <div id="text-tab" class="tab-content active">
@@ -453,7 +453,7 @@
                             <option value="email">Email</option>
                             <option value="invoice">Invoice</option>
                             <option value="webhook">Webhook</option>
-                            <option value="pdf">PDF Content</option>
+                            <!-- <option value="pdf">PDF Content</option> -->
                         </select>
                     </div>
                     
@@ -477,22 +477,22 @@
                 </div>
 
                 <!-- PDF upload tab specifically for PDF processing -->
-                <div id="pdf-tab" class="tab-content">
+                    <!-- <div id="pdf-tab" class="tab-content">
                     <div class="file-upload-area" id="pdf-upload-area">
                         <i class="fas fa-file-pdf"></i>
                         <p>Drop PDF files here or click to browse</p>
                         <input type="file" id="pdf-input" accept=".pdf" multiple>
                     </div>
                     <div id="pdf-list"></div>
-                    
+                     --> 
                     <!-- Sample PDF processing button -->
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e5e9;">
+                    <!-- <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e5e9;">
                         <h3>Sample PDF Processing:</h3>
                         <button onclick="processSamplePDF()" class="sample-btn">
                             <i class="fas fa-file-pdf"></i> Process Sample PDF
                         </button>
-                    </div>
-                </div>
+                    </div> -->
+                <!-- </div> -->
 
                 <div class="sample-buttons">
                     <h3>Try Sample Documents:</h3>
@@ -571,7 +571,7 @@
                     </ul>
                 </div>
 
-                <div class="agent-card">
+                <!-- <div class="agent-card">
                     <div class="agent-icon pdf-agent">
                         <i class="fas fa-file-pdf"></i>
                     </div>
@@ -583,7 +583,7 @@
                         <li>Page count</li>
                         <li>Content analysis</li>
                     </ul>
-                </div>
+                </div> -->
 
             </div>
         </div>
